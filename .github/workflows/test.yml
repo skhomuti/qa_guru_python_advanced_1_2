@@ -1,0 +1,37 @@
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - run: docker compose build
+      - run: docker compose up -d
+
+      - run: pip install -r requirements.txt
+      - run: pytest tests --junit-xml=test-results.xml
+        env:
+          APP_URL: http://localhost:8002
+
+      - name: Surface failing tests
+        if: always()
+        uses: pmeier/pytest-results-action@main
+        with:
+          path: test-results.xml
+          summary: true
+          display-options: fEX
+          fail-on-empty: true
+          title: Test results
+
+      - run: docker compose logs app
+        if: failure()
