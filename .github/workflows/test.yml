@@ -1,0 +1,27 @@
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - run: docker compose build
+      - run: docker compose up -d
+
+      - run: pip install -r requirements.txt
+      - run: pytest tests
+        env:
+          APP_URL: http://127.0.0.1:8002
+
+      - run: docker compose logs
+        if: always()
