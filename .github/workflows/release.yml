@@ -42,6 +42,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: gh release create $(git rev-parse --short HEAD) --generate-notes
 
       - name: Publish on docker hub
