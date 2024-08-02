@@ -21,7 +21,7 @@ jobs:
       - run: pip install -r requirements.txt
       - run: pytest tests
         env:
-          APP_URL: http://127.0.0.1:8002
+          APP_URL: http://localhost:8002
 
       - run: docker compose logs
         if: always()
