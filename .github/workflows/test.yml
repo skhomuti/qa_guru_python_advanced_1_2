@@ -19,9 +19,19 @@ jobs:
       - run: docker compose up -d
 
       - run: pip install -r requirements.txt
-      - run: pytest tests
+      - run: pytest tests --junit-xml=test-results.xml
         env:
           APP_URL: http://localhost:8002
 
-      - run: docker compose logs
+      - name: Surface failing tests
         if: always()
+        uses: pmeier/pytest-results-action@main
+        with:
+          path: test-results.xml
+          summary: true
+          display-options: fEX
+          fail-on-empty: true
+          title: Test results
+
+      - run: docker compose logs app
+        if: failure()
